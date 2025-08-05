@@ -1,10 +1,12 @@
 openapi: 3.1.0
 info:
   title: Life Plan Agent
-  description: Writes data to Google Sheets
   version: 1.0.0
+  description: A custom GPT Action for writing to a Google Sheet to support life planning, tracking, and decision-making.
+
 servers:
   - url: https://life-plan-agent.vercel.app
+
 paths:
   /api/write:
     post:
@@ -17,23 +19,22 @@ paths:
             schema:
               type: object
               properties:
-                spreadsheetId:
-                  type: string
                 range:
                   type: string
+                  description: The A1 notation of the range to update (e.g., "Sheet1!A1").
                 values:
                   type: array
                   items:
                     type: array
                     items:
                       type: string
+                  description: A 2D array of values to write to the sheet.
               required:
-                - spreadsheetId
                 - range
                 - values
       responses:
         '200':
-          description: Success
+          description: Successful write to Google Sheet
           content:
             application/json:
               schema:
@@ -44,7 +45,7 @@ paths:
                   updatedRange:
                     type: string
         '500':
-          description: Error
+          description: Internal server error
           content:
             application/json:
               schema:
