@@ -1,22 +1,28 @@
-import { google } from "googleapis";
+const express = require("express");
+const { google } = require("googleapis");
+require("dotenv").config();
+
+const app = express();
+app.use(express.json());
 
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 
 const auth = new google.auth.JWT(
   process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
   null,
-  process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
   SCOPES
 );
 
 const sheets = google.sheets({ version: "v4", auth });
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
+app.post("/api/write", async (req, res) => {
+  const { range, values } = req.body;
+  const spreadsheetId = process.env.DEFAULT_SPREADSHEET_ID;
 
-  const { spreadsheetId, range, values } = req.body;
+  if (!spreadsheetId) {
+    return res.status(500).json({ error: "Missing DEFAULT_SPREADSHEET_ID in environment variables." });
+  }
 
   try {
     const result = await sheets.spreadsheets.values.update({
@@ -26,9 +32,17 @@ export default async function handler(req, res) {
       requestBody: { values },
     });
 
-    res.status(200).json({ message: "Success", updatedRange: result.data.updatedRange });
+    res.json({ message: "Success", updatedRange: result.data.updatedRange });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: error.message });
   }
-}
+});
+
+app.get("/", (req, res) => {
+  res.send("Google Sheets Writer is running.");
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
