@@ -1,0 +1,72 @@
+
+openapi: 3.1.0
+info:
+  title: Google Sheets API Key Agent
+  version: 1.0.0
+servers:
+  - url: https://sheets.googleapis.com/v4/spreadsheets
+paths:
+  /{spreadsheetId}/values/{range}:
+    get:
+      operationId: readSheet
+      summary: Read values from a Google Sheet
+      parameters:
+        - name: spreadsheetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: range
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: key
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sheet data returned successfully
+    put:
+      operationId: writeSheet
+      summary: Write values to a Google Sheet
+      parameters:
+        - name: spreadsheetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: range
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: valueInputOption
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [RAW, USER_ENTERED]
+        - name: key
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                values:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        '200':
+          description: Sheet updated successfully
