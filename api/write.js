@@ -1,21 +1,21 @@
-const express = require("express");
-const { google } = require("googleapis");
-
-const app = express();
-app.use(express.json());
+import { google } from "googleapis";
 
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 
 const auth = new google.auth.JWT(
   process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
   null,
-  process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
   SCOPES
 );
 
 const sheets = google.sheets({ version: "v4", auth });
 
-app.post("/api/write", async (req, res) => {
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
+
   const { spreadsheetId, range, values } = req.body;
 
   try {
@@ -26,11 +26,9 @@ app.post("/api/write", async (req, res) => {
       requestBody: { values },
     });
 
-    res.json({ message: "Success", updatedRange: result.data.updatedRange });
+    res.status(200).json({ message: "Success", updatedRange: result.data.updatedRange });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
-});
-
-// Remove server.listen — we don't need it in Vercel
-module.exports = app;
+}
