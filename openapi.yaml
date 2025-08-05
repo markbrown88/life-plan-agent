@@ -1,32 +1,12 @@
 openapi: 3.1.0
 info:
-  title: Google Sheets Agent
+  title: Google Sheets Writer
   version: 1.0.0
-servers:
-  - url: https://markbrown88.github.io/gpt-actions
 paths:
-  /read:
-    get:
-      operationId: readSheet
-      summary: Read from a Google Sheet
-      parameters:
-        - name: spreadsheetId
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: range
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns the data from the sheet
-  /write:
+  /api/write:
     post:
-      operationId: writeSheet
-      summary: Write to a Google Sheet
+      operationId: writeToSheet
+      summary: Write data to a Google Sheet
       requestBody:
         required: true
         content:
@@ -46,4 +26,15 @@ paths:
                       type: string
       responses:
         '200':
-          description: Data written successfully
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  updatedRange:
+                    type: string
+servers:
+  - url: https://life-plan-agent.vercel.app
